@@ -1,0 +1,59 @@
+name: Build Windows
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 설치
+        run: |
+          pip install ".[gui]" pyinstaller
+      - name: 버전 정하기
+        id: ver
+        shell: bash
+        run: |
+          v="${{ inputs.version }}"
+          if [ -z "$v" ]; then v=$(python -c "import whosaid; print(whosaid.__version__)"); fi
+          echo "version=${v#v}" >> "$GITHUB_OUTPUT"
+      - name: PyInstaller 빌드
+        working-directory: packaging
+        run: pyinstaller whosaid.spec --noconfirm --distpath ..\dist --workpath ..\build
+      - name: 빌드한 프로그램으로 점검 (화자 분리 + 받아쓰기)
+        shell: bash
+        env:
+          WHOSAID_HOME: ${{ runner.temp }}/whosaid-home
+        run: |
+          bash scripts/fetch_test_models.sh "$RUNNER_TEMP/models"
+          ./dist/WhoSaid/WhoSaid.exe selftest "$RUNNER_TEMP/models/0-four-speakers-zh.wav" --whisper tiny --language zh \
+            && status=0 || status=$?
+          cat "$WHOSAID_HOME/temp/whosaid.log" || true
+          exit $status
+      - name: 설치 프로그램 만들기 (Inno Setup)
+        shell: pwsh
+        run: |
+          if (-not (Get-Command iscc -ErrorAction SilentlyContinue)) {
+            choco install innosetup -y --no-progress
+            $env:Path += ";${env:ProgramFiles(x86)}\Inno Setup 6"
+          }
+          iscc /DAppVersion=${{ steps.ver.outputs.version }} packaging\installer.iss
+          Compress-Archive -Path dist\WhoSaid -DestinationPath dist\WhoSaid-${{ steps.ver.outputs.version }}-portable.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: WhoSaid-windows
+          path: |
+            dist/WhoSaid-Setup-*.exe
+            dist/WhoSaid-*-portable.zip
+          retention-days: 14

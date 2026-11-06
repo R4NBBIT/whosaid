@@ -218,3 +218,69 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ---------------------------------------------------------------------------
+# WhoSaid: 개인 데이터 차단 (이 레포는 Public입니다)
+# 회의 녹음, 목소리 지문, 회의록, 모델, API 키는 절대 커밋하지 않습니다.
+# 커밋 직전에도 scripts/check_private_data.py 가 한 번 더 검사합니다.
+# ---------------------------------------------------------------------------
+
+# 패키징 스펙 파일은 예외로 추적
+!packaging/whosaid.spec
+
+# 오디오 / 비디오 (회의 녹음)
+*.wav
+*.mp3
+*.m4a
+*.aac
+*.flac
+*.ogg
+*.oga
+*.opus
+*.wma
+*.amr
+*.3gp
+*.3ga
+*.webm
+*.mp4
+*.m4v
+*.mov
+*.mkv
+*.avi
+*.caf
+*.aiff
+*.aif
+
+# 목소리 지문 / 임베딩 / 배열 데이터
+*.npy
+*.npz
+*.pkl
+*.pickle
+voiceprints/
+voiceprint*/
+
+# 모델 파일
+*.onnx
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+models/
+
+# 회의 결과물 / 로컬 데이터
+meetings/
+minutes/
+recordings/
+outputs/
+output/
+data/
+whosaid-data/
+*.whosaid.json
+
+# 비밀값
+secrets.json
+*.key
+*.pem
+.env.*
