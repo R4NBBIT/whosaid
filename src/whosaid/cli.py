@@ -195,6 +195,11 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("gui", help="화면으로 실행")
     p.set_defaults(func=lambda a: __import__("whosaid.gui.app", fromlist=["main"]).main())
 
+    for stream in (sys.stdout, sys.stderr):  # 출력이 파이프로 갈 때도 한글이 오류 나지 않게
+        try:
+            stream.reconfigure(errors="replace")
+        except (AttributeError, ValueError):
+            pass
     args = parser.parse_args(argv)
     if not args.cmd:
         parser.print_help()

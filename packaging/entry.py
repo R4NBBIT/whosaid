@@ -13,6 +13,12 @@ if __name__ == "__main__":
         log = open(paths.temp_dir() / "whosaid.log", "a", encoding="utf-8", buffering=1)
         sys.stdout = sys.stdout or log
         sys.stderr = sys.stderr or log
+    # 빌드된 실행 파일은 PYTHONIOENCODING을 무시하므로, 한글 출력이 깨지거나 오류 나지 않게 직접 맞춤
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
     if len(sys.argv) > 1:
         from whosaid.cli import main
     else:
