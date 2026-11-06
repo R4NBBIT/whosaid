@@ -36,4 +36,14 @@ exe = EXE(
     console=False,
     icon=None,
 )
-coll = COLLECT(exe, a.binaries, a.datas, strip=False, upx=False, name="WhoSaid")
+# 같은 폴더에 명령줄용 실행 파일도 함께 둡니다 (whosaid-cli.exe process 회의.m4a)
+cli = EXE(
+    pyz,
+    a.scripts,
+    [],
+    exclude_binaries=True,
+    name="whosaid-cli",
+    console=True,
+    icon=None,
+)
+coll = COLLECT(exe, cli, a.binaries, a.datas, strip=False, upx=False, name="WhoSaid")

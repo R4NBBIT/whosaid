@@ -32,13 +32,23 @@ jobs:
         working-directory: packaging
         run: pyinstaller whosaid.spec --noconfirm --distpath ..\dist --workpath ..\build
       - name: 빌드한 프로그램으로 점검 (화자 분리 + 받아쓰기)
+        timeout-minutes: 15
+        shell: bash
+        env:
+          WHOSAID_HOME: ${{ runner.temp }}/whosaid-home
+          PYTHONIOENCODING: utf-8
+          PYTHONFAULTHANDLER: "1"
+        run: |
+          bash scripts/fetch_test_models.sh "$RUNNER_TEMP/models"
+          timeout 600 ./dist/WhoSaid/whosaid-cli.exe selftest "$RUNNER_TEMP/models/0-four-speakers-zh.wav" \
+            --whisper tiny --language zh
+      - name: 창 모드 실행 파일 점검 (명령줄 인자로 실행 후 종료되는지)
+        timeout-minutes: 5
         shell: bash
         env:
           WHOSAID_HOME: ${{ runner.temp }}/whosaid-home
         run: |
-          bash scripts/fetch_test_models.sh "$RUNNER_TEMP/models"
-          ./dist/WhoSaid/WhoSaid.exe selftest "$RUNNER_TEMP/models/0-four-speakers-zh.wav" --whisper tiny --language zh \
-            && status=0 || status=$?
+          timeout 120 ./dist/WhoSaid/WhoSaid.exe people && status=0 || status=$?
           cat "$WHOSAID_HOME/temp/whosaid.log" || true
           exit $status
       - name: 설치 프로그램 만들기 (Inno Setup)
