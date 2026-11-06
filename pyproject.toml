@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "whosaid"
+version = "0.1.0"
+description = "Local Windows app that transcribes meeting recordings, identifies who said what from enrolled voiceprints, and drafts meeting minutes."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "av>=12",
+    "faster-whisper>=1.1",
+    "sherpa-onnx>=1.10.30",
+    "httpx>=0.27",
+    "huggingface_hub>=0.23",
+    "platformdirs>=4",
+]
+
+[project.optional-dependencies]
+gui = ["PySide6>=6.6"]
+dev = ["pytest>=8", "soundfile>=0.12"]
+
+[project.scripts]
+whosaid = "whosaid.cli:main"
+
+[project.gui-scripts]
+whosaid-gui = "whosaid.gui.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["models: 실제 모델 파일이 필요한 통합 테스트 (WHOSAID_TEST_MODELS 환경변수)"]

@@ -1,0 +1,6 @@
+#!/bin/sh
+# WhoSaid: 회의 녹음·목소리 지문·API 키가 커밋되지 않도록 막습니다.
+# 설치: python scripts/install_hooks.py
+PY=python3
+command -v "$PY" >/dev/null 2>&1 || PY=python
+exec "$PY" "$(git rev-parse --show-toplevel)/scripts/check_private_data.py" --staged
